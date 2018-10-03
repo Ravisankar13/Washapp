@@ -1,0 +1,109 @@
+<head><h1>Services</h1></head>	
+<div class="container">
+	<div class="col-md-3">
+        <div id ="myDIV" >
+ 			<ul class="nav nav-pills nav-stacked">              
+ 				<% @types.each do |s| %>
+		 			<li class="types active"  data-toggle="button"  data-type = "#<%= s.ServiceType %>"  onclick="toggleFunction('<%= s.ServiceType %>')" > <%= s.ServiceType %> </li>				
+ 					<% end %>  
+ 			</ul>
+        </div>
+	</div>
+	<div class="col-md-4">
+        <div class="section2">
+            <div id="parent" >
+                <% @types.each do |s| %>
+                     <div class="type" id = "<%= s.ServiceType %>" >
+                            <% @list = Service.where(ServiceType: "#{s.ServiceType}") %>
+                                <% @list.each do |p| %>      
+                                
+                                <button id="a<%= p.id %>" class="col-md-3 nav nav-stacked color_ch" onclick="invoiceFunction('inv<%= s.ServiceType %>','<%= p.name %>','<%= p.price %>','<%= p.id %>' )" >
+                                    <div hidden><%= p.id %> </div>
+                                    <div><%= p.name %></div>
+                                    <div class="pri" >₹<%= p.price %></div>
+                                    </button>
+                                <% end%>
+                    </div>
+                    <% end %>
+             </div>
+        </div>
+    </div>
+    <div class="col-md-4">            
+        <div class="row" >
+            <div class="col-md-3" >Name</div>
+            <div class="col-md-2" >Price</div>
+            <div class="col-md-4" >Quantity</div>
+            <div class="col-md-3" >Total</div>   
+        </div>
+        <div>
+        <% @types.each do |s| %>
+            <div id="service">
+                <div class="row">
+                <h3 class="col-md-6" ><bold><%=s.ServiceType %></bold></h3>
+                <h3 class="col-md-3 quan">0</h3>
+                <h3 class="col-md-3 price">0</h3>
+                </div>
+                     <div id="inv<%= s.ServiceType %>"></div>
+                    
+                     <% if s.ServiceType == "Washandfold" ||  s.ServiceType == "Washandiron" %>  
+                      <div class="row">
+                        <div class="col-md-2">Weight</div>
+                        <div class="col-md-2 wei" id="wei<%= s.ServiceType %>"><input id="wt<%= s.ServiceType %>" class="kg" type='number' onchange="myFunction(this)" min='0' value='0' ></div>
+
+                    </div>
+                    <div class="type" style="color:red;" id="h<%= s.ServiceType %>"  >please enter weight</div>       
+                        <% end %> 
+            </div>
+
+        <% end%>
+        </div>
+        <h4><div class="row"> 
+            <div class="col-md-5">Total Quantity:</div>
+            <div class="col-md-1 total_quantity">0</div>
+            <div class="col-md-4">Total Price:</div>
+            <div class="col-md-2 total_price">0</div>
+        </div></h4>
+        <button type="button" onclick="bill(this)" class="btn btn-primary btn-block">Genrate Bill</button>
+    </div> 
+</div> 
+<style>
+
+.color_ch{
+    background: lightslategray;
+}
+.color_ch:visited {
+  background: red;
+}
+
+.h1 {
+    color: navy;
+}
+.section2{
+overflow: auto;
+}
+.btns{
+    width: 30px;
+}
+.type{
+    display:none;
+}
+.types {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.container {
+    overflow:auto;
+}
+.buttonred{
+    background: red;
+}
+</style>
+
+
+
+
+

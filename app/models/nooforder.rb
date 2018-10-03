@@ -1,0 +1,2 @@
+class Nooforder < ApplicationRecord
+end
