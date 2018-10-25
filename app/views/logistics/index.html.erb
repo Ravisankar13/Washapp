@@ -1,0 +1,139 @@
+<head><h1></h1></head>	
+    <div class="row">
+    <div class="col-md-4"></div>    
+	<div class="col-md-2" >
+		<input type="file" id="excelfile" />
+    </div>
+   	<div class="col-md-1">	<input class="btn btn-primary" type="button" id="viewfile" value="Export To Table" onclick="ExportToTable()" /></div> 
+    </div> 
+	<div class="row">
+        <div class="col-md-1"></div>
+	<div class="col-md-11">
+    <table class="table table-responsive" id="exceltable">  
+	</table></div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+	function ExportToTable() {  
+     var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xlsx|.xls)$/;  
+     
+     if (regex.test($("#excelfile").val().toLowerCase())) {  
+         var xlsxflag = false; 
+         if ($("#excelfile").val().toLowerCase().indexOf(".xlsx") > 0) {  
+             xlsxflag = true;  
+         }  
+         /*Checks whether the browser supports HTML5*/  
+         if (typeof (FileReader) != "undefined") {  
+             var reader = new FileReader();  
+             reader.onload = function (e) {  
+                 var data = e.target.result;  
+                 /*Converts the excel data in to object*/  
+                 if (xlsxflag) {  
+                     var workbook = XLSX.read(data, { type: 'binary' });  
+                 }  
+                 else {  
+                     var workbook = XLS.read(data, { type: 'binary' });  
+                 }  
+                 /*Gets all the sheetnames of excel in to a variable*/  
+                 var sheet_name_list = workbook.SheetNames;  
+  
+                 var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/  
+                 sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                     /*Convert the cell value to Json*/  
+                     if (xlsxflag) {  
+                         var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                     }  
+                     else {  
+                         var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                     }  
+                     if (exceljson.length > 0 && cnt == 0) {  
+                         BindTable(exceljson, '#exceltable');  
+                         cnt++;
+                         validate(exceljson,workbook);  
+                     }  
+                 });  
+                 $('#exceltable').show();  
+             }  
+             if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                 reader.readAsArrayBuffer($("#excelfile")[0].files[0]);  
+             }  
+             else {  
+                 reader.readAsBinaryString($("#excelfile")[0].files[0]);  
+             }  
+         }  
+         else {  
+             alert("Sorry! Your browser does not support HTML5!");  
+         }  
+     }  
+     else {  
+         alert("Please upload a valid Excel file!");  
+     }  
+ } 
+ function BindTable(jsondata, tableid) {  
+     var columns = BindTableHeader(jsondata, tableid);  
+     for (var i = 0; i < jsondata.length; i++) {  
+         var row$ = $( '<tr id = '+ i +' />' ) ;  
+         for (var colIndex = 0; colIndex < columns.length; colIndex++) {  
+             var cellValue = jsondata[i][columns[colIndex]];  
+             if (cellValue == null){      
+                 cellValue = null; 
+                 } 
+             row$.append($('<td />').html(cellValue));  
+         }  
+         $(tableid).append(row$);  
+     }  
+ }  
+ function BindTableHeader(jsondata, tableid) {
+     var columnSet = ["Errors"];  
+     var headerTr$ = $('<tr/>');
+      headerTr$.append($('<th/>').html(columnSet));   
+     for (var i = 0; i < jsondata.length; i++) {  
+         var rowHash = jsondata[i];  
+         for (var key in rowHash) {  
+             if (rowHash.hasOwnProperty(key)) {  
+                 if ($.inArray(key, columnSet) == -1) { 
+                     columnSet.push(key);  
+                     headerTr$.append($('<th/>').html(key));  
+                 }  
+             }  
+         }  
+     }  
+     $(tableid).append(headerTr$);  
+     return columnSet;  
+ } 
+function validate(jsondata,workbook,tableid){
+    var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    for (var i = 0; i < jsondata.length; i++) { 
+        var a = parseInt(jsondata[i].Mobile) ; 
+             
+        if(a == NaN){}
+            else{
+                 if((a/1000000000)<1){ 
+                    z = i-2;
+                    document.getElementById(i).children[0].append("Number error"+", ");
+                    $("tr#"+i).addClass("danger");
+                   // $("tr#"+1).addClass("success");
+                 }
+            }
+         if (reg.test(jsondata[i].Email)==false) {
+            document.getElementById(i).children[0].append("email error"+"");
+            $("tr#"+i).addClass("danger");
+        //  document.getElementById("error2").innerHTML += "email error at"+" "+"B"+i+ "<br />";
+            }
+        var first = "A", last = "J";
+        for(var c = first.charCodeAt(0); c <= last.charCodeAt(0); c++) {
+           var j = eval("String.fromCharCode(c)");
+           var k = i+1;
+           if(workbook.Sheets.Sheet1[j+k]==undefined){
+            document.getElementById(i-1).children[0].append("shouldnt be empty");
+           }
+        // eval("String.fromCharCode(" + c + ")") ;
+        }
+    }        
+}
+
+
+</script>
+

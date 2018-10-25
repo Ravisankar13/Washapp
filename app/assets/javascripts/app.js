@@ -1,4 +1,3 @@
-
 function toggleFunction (x) {
  $(".li").removeClass("active");
   var $this = $("#"+x);
